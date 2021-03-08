@@ -2,6 +2,7 @@ import pygame, sys, random
 
 #General Setup
 pygame.init()
+pygame.font.init()
 clock = pygame.time.Clock()
 
 # Setting up the main window
@@ -18,13 +19,24 @@ opponent = pygame.Rect(10,screen_height/2 - 70,10,140)
 bg_color = pygame.Color("grey12")
 light_grey = (200,200,200)
 
-ball_speed_x = 7 *random.choice((1,-1))
-ball_speed_y = 7 *random.choice((1,-1))
+ball_speed_x = 13 *random.choice((1,-1))
+ball_speed_y = 13 *random.choice((1,-1))
 player_speed = 0
 opponent_speed = 0
+player_points = 0
+opponent_points = 0
+
+# Help for fonts: https://stackoverflow.com/questions/20842801/how-to-display-text-in-pygame
+# Points
+pygame.font.init()
+myfont = pygame.font.SysFont('Comic Sans MS', 30)
+player_point_display = myfont.render(str(player_points), False, light_grey)
+opponent_point_display = myfont.render(str(opponent_points), False, light_grey)
+
+
 
 # Game variables
-def player_animation():
+def player_animation(player, opponent, player_speed, opponent_speed, screen_height):
 	player.y += player_speed
 	opponent.y += opponent_speed
 	if player.top <= 0:
@@ -35,6 +47,7 @@ def player_animation():
 		opponent.top = 0
 	if opponent.bottom >= screen_height:
 		opponent.bottom = screen_height
+	return player, opponent, player_speed, opponent_speed, screen_height
 
 def ball_animation(ball_speed_y, ball_speed_x):
 	ball.x += ball_speed_x
@@ -62,33 +75,45 @@ def movement(opponent_speed, player_speed):
 			sys.exit()
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_DOWN:
-				player_speed +=7
+				player_speed +=8.5
 			if event.key == pygame.K_UP:
-				player_speed -=7
+				player_speed -=8.5
 		if event.type == pygame.KEYUP:
 			if event.key == pygame.K_DOWN:
-				player_speed -=7
+				player_speed -=8.5
 			if event.key == pygame.K_UP:
-				player_speed +=7
+				player_speed +=8.5
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_s:
-				opponent_speed +=7
+				opponent_speed +=8.5
 			if event.key == pygame.K_w:
-				opponent_speed -=7
+				opponent_speed -=8.5
 		if event.type == pygame.KEYUP:
 			if event.key == pygame.K_s:
-				opponent_speed -=7
+				opponent_speed -=8.5
 			if event.key == pygame.K_w:
-				opponent_speed +=7
+				opponent_speed +=8.5
 	return opponent_speed, player_speed
 
-def visuals(screen, screen_width, screen_height, light_grey, player, opponent, ball):
+def visuals(screen, screen_width, screen_height, light_grey, player, opponent, ball, player_point_display, opponent_point_display):
 	screen.fill(bg_color)
-	pygame.draw.rect(screen,light_grey, player)
-	pygame.draw.rect(screen,light_grey, opponent)
-	pygame.draw.ellipse(screen,light_grey, ball)
-	pygame.draw.aaline(screen, light_grey, (screen_width/2,0), (screen_width/2,screen_height))
-	return screen, screen_width, screen_height, light_grey, player, opponent, ball
+	pygame.draw.rect(screen,light_grey,player)
+	pygame.draw.rect(screen,light_grey,opponent)
+	pygame.draw.ellipse(screen,light_grey,ball)
+	pygame.draw.aaline(screen, light_grey,(screen_width/2,0),(screen_width/2,screen_height))
+	screen.blit(opponent_point_display,(350,1280))
+	screen.blit(player_point_display,(360,1280))
+	return screen, screen_width, screen_height, light_grey, player, opponent, ball, player_point_display, opponent_point_display
+
+# Point Update
+def points(opponent_points, player_points, screen_width, ball):
+	if ball.left <= 0:
+		player_points +=1
+		return player_points
+	if ball.right > screen_width:
+		opponent_points +=1
+		return opponent_points
+	return  screen_width, ball, ball_speed_x, ball_speed_y
 
 def update_window():
 	pygame.display.flip()
@@ -98,6 +123,8 @@ def update_window():
 while True:
 	opponent_speed, player_speed = movement(opponent_speed, player_speed)
 	ball_speed_y, ball_speed_x = ball_animation(ball_speed_y, ball_speed_x)
-	player_animation()
-	screen, screen_width, screen_height, light_grey, player, opponent, ball = visuals(screen, screen_width, screen_height, light_grey, player, opponent, ball)
+	# Points & Ball Speed Update
+	opponent_points, player_points, screen_width, ball = points(opponent_points, player_points, screen_width, ball)
+	player, opponent, player_speed, opponent_speed, screen_height = player_animation(player, opponent, player_speed, opponent_speed, screen_height)
+	screen, screen_width, screen_height, light_grey, player, opponent, ball, player_point_display, opponent_point_display = visuals(screen, screen_width, screen_height, light_grey, player, opponent, ball, player_point_display, opponent_point_display)
 	update_window()
