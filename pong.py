@@ -16,7 +16,7 @@ ball = pygame.Rect(screen_width/2 - 15,screen_height/2 - 15,30,30)
 player = pygame.Rect(screen_width - 20,screen_height/2 - 70,10,140)
 opponent = pygame.Rect(10,screen_height/2 - 70,10,140)
 
-bg_color = pygame.Color("grey12")
+backbground_color = (0,0,0)
 light_grey = (200,200,200)
 
 ball_speed_x = 13 *random.choice((1,-1))
@@ -95,15 +95,15 @@ def movement(opponent_speed, player_speed):
 				opponent_speed +=8.5
 	return opponent_speed, player_speed
 
-def visuals(screen, screen_width, screen_height, light_grey, player, opponent, ball, player_point_display, opponent_point_display):
-	screen.fill(bg_color)
+def visuals(screen, screen_width, screen_height, light_grey, player, opponent, ball, player_point_display, opponent_point_display, background_color):
+	screen.fill(background_color)
 	pygame.draw.rect(screen,light_grey,player)
 	pygame.draw.rect(screen,light_grey,opponent)
 	pygame.draw.ellipse(screen,light_grey,ball)
 	pygame.draw.aaline(screen, light_grey,(screen_width/2,0),(screen_width/2,screen_height))
 	screen.blit(opponent_point_display,(350,1280))
 	screen.blit(player_point_display,(360,1280))
-	return screen, screen_width, screen_height, light_grey, player, opponent, ball, player_point_display, opponent_point_display
+	return screen, screen_width, screen_height, light_grey, player, opponent, ball, player_point_display, opponent_point_display, background_color
 
 # Point Update
 def points(opponent_points, player_points, screen_width, ball):
@@ -123,8 +123,7 @@ def update_window():
 while True:
 	opponent_speed, player_speed = movement(opponent_speed, player_speed)
 	ball_speed_y, ball_speed_x = ball_animation(ball_speed_y, ball_speed_x)
-	# Points & Ball Speed Update
 	opponent_points, player_points, screen_width, ball = points(opponent_points, player_points, screen_width, ball)
 	player, opponent, player_speed, opponent_speed, screen_height = player_animation(player, opponent, player_speed, opponent_speed, screen_height)
-	screen, screen_width, screen_height, light_grey, player, opponent, ball, player_point_display, opponent_point_display = visuals(screen, screen_width, screen_height, light_grey, player, opponent, ball, player_point_display, opponent_point_display)
+	screen, screen_width, screen_height, light_grey, player, opponent, ball, player_point_display, opponent_point_display, background_color = visuals(screen, screen_width, screen_height, light_grey, player, opponent, ball, player_point_display, opponent_point_display, background_color)
 	update_window()
